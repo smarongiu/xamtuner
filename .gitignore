@@ -1,0 +1,11 @@
+.DS_Store
+packages
+.gradle
+Tests/obj
+Tests/bin
+TestResult.xml
+[Oo]bj/
+[Bb]in/
+
+*.droidres.db
+*.userprefs
