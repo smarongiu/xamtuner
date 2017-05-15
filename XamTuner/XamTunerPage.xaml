@@ -13,14 +13,10 @@
 		<StackLayout BackgroundColor="Navy" Padding="20">
 			<Label Text="{Binding DetectedPitch}" TextColor="Yellow" HorizontalOptions="Center" />
 		</StackLayout>
-		<StackLayout BackgroundColor="Silver" Padding="20" Orientation="Horizontal">
-			<Label Text="{Binding vMax}" HorizontalOptions="Start" />
-			<Label Text="{Binding vMean}" HorizontalOptions="Center" />
-			<Label Text="{Binding vStd}" HorizontalOptions="End" />
-		</StackLayout>
-		<oxy:PlotView x:Name="Plot"
+		<oxy:PlotView x:Name="Plot"            
 			HorizontalOptions="FillAndExpand" 
-			VerticalOptions="FillAndExpand" 
+			VerticalOptions="FillAndExpand"
+            Margin="5"
 			Model="{Binding PlotModel}"/>
 	</StackLayout>
 </ContentPage>

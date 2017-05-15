@@ -6,6 +6,7 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using Plugin.Permissions;
 using Plugin.Permissions.Abstractions;
+using Xamarin.Forms;
 using XLabs;
 
 namespace XamTuner {
@@ -15,33 +16,42 @@ namespace XamTuner {
 
 		public OxyPlot.PlotModel PlotModel { get; private set; }
 
+        public event Action PlotDataChanged = delegate {};
+
+        LineSeries _series;
+
 		public XamTunerViewModel() {
 			_service = new RealTimePitchDetectionService();
 			_service.PitchDetected += OnPitchDetected;
 			_service.FragmentReceived += OnFragmentReceived;
 			PlotModel = new OxyPlot.PlotModel() {
-				Title = "Plot",
+				Title = "Harmonic Power Spectrum",
 				Background = OxyColors.White,
 				PlotAreaBorderColor = OxyColors.Gray
 			};
-			PlotModel.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Minimum = 0, Maximum = 2000 });
-			PlotModel.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Left, Minimum = 1e-100, Maximum = 1e-10 });
+			PlotModel.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Minimum = 0, Maximum = 1000 });
+            PlotModel.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Minimum = -300, Maximum = 3 });
+            //PlotModel.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Left, Minimum = 1e-100, Maximum = 1e-10, Base = 20 });
+            _series = new LineSeries();
+            PlotModel.Series.Add(_series);
 		}
 
 		void OnFragmentReceived(double[] psd) {
-			PlotModel.Series.Clear();
-			var series = new LineSeries();
-			for(int i = 0; i < psd.Length; i++) {
-				var fq = (double)i / psd.Length * SampleRate;
-				series.Points.Add(new OxyPlot.DataPoint(fq, psd[i]));
+            _series.Points.Clear();
+			for (int i = 0; i < psd.Length; i++) {
+				var fq = (double)i / psd.Length * SampleRate / 2;
+                _series.Points.Add(new OxyPlot.DataPoint(fq, psd[i]));
 			}
-			PlotModel.Series.Add(series);
-			RaisePropertyChanged(nameof(PlotModel));
+            PlotDataChanged();
 		}
 
 		void OnPitchDetected(XamTuner.DetectedPitchInfo pi) {
-			DetectedPitch = pi.Frequency.ToString("F2");
-			vMax = pi.Power.ToString("E2");
+            if (pi != null) {
+                DetectedPitch = pi.Frequency.ToString("F2");
+                vMax = pi.Power.ToString("E2");
+            } else {
+                DetectedPitch = "--";
+            }
 			RaisePropertyChanged(nameof(DetectedPitch));
 			RaisePropertyChanged(nameof(vMax));
 		}

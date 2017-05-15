@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
 
 namespace XamTuner {
 	public partial class XamTunerPage : ContentPage {
@@ -6,9 +7,13 @@ namespace XamTuner {
 			Vm = new XamTunerViewModel();
 			BindingContext = Vm;
 			InitializeComponent();
+            Vm.PlotDataChanged += OnPlotDataChanged;
 		}
 
-		XamTunerViewModel Vm { get; set; }
+        void OnPlotDataChanged() {
+			Device.BeginInvokeOnMainThread(() => Vm.PlotModel.InvalidatePlot(true));
+		}
 
+        XamTunerViewModel Vm { get; set; }
 	}
 }

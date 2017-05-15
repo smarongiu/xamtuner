@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MathNet.Numerics;
+using MathNet.Numerics.Statistics;
 using XLabs;
 
 namespace XamTuner {
@@ -15,10 +16,12 @@ namespace XamTuner {
 
 	public class RealTimePitchDetectionService {
 
-		public const int HPS_FACTOR = 3;
+        public const int HPS_FACTOR = 5;
 
 		public event Action<DetectedPitchInfo> PitchDetected = delegate {};
 		public event Action<double[]> FragmentReceived = delegate {};
+
+        public double DetectionThreshold { get; set; } = -60;
 
 		public RealTimePitchDetectionService() {
 		}
@@ -62,27 +65,36 @@ namespace XamTuner {
 			//calculate the fft
 			MathNet.Numerics.IntegralTransforms.Fourier.Forward(_fftBuf);
 
+            AudioUtils.GetPowerSpectrum(_fftBuf, _powerSpecrumBuf);
 
 			//get the power spectrum and the HSP
-			AudioUtils.ComputeHPS(_fftBuf, HPS_FACTOR, _powerSpecrumBuf);
+			//AudioUtils.ComputeHPS(_powerSpecrumBuf, HPS_FACTOR);
 
-			FragmentReceived(_powerSpecrumBuf);
-				
+            _powerSpecrumBuf.ConvertToDb();
+            FragmentReceived(_powerSpecrumBuf);
+
+            double mean = _powerSpecrumBuf.Mean();
+            double std = _powerSpecrumBuf.StandardDeviation();
+            double threshold = -50;
+
 			//find max
 			int index = -1;
-			double max = double.MinValue;
-			for(int i = 0; i < _powerSpecrumBuf.Length / HPS_FACTOR; i++) {
+            double max = DetectionThreshold;
+			for(int i = 0; i < _powerSpecrumBuf.Length; i++) {
 				if(_powerSpecrumBuf[i] > max) {
 					max = _powerSpecrumBuf[i];
 					index = i;
 				}
 			}
+            System.Diagnostics.Debug.WriteLine($"mean={mean} max={max} @[{index}] std={std}");
 
 			if(index != -1) {
 				var fq = (double)index / _powerSpecrumBuf.Length * SampleRate;
-				System.Diagnostics.Debug.WriteLine($"max: fq={fq} -> {max}");
-				PitchDetected(new DetectedPitchInfo(fq, max)); 
-			}
+				//System.Diagnostics.Debug.WriteLine($"max: fq={fq} -> {max}");
+				PitchDetected(new DetectedPitchInfo(fq, max));
+            } else {
+                PitchDetected(null);
+            }
 
 			//double max = hsp.Maximum();
 			//double mean = hsp.Mean();
