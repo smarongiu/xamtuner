@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ContentPage 
-	xmlns="http://xamarin.com/schemas/2014/forms" 
-	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-	xmlns:local="clr-namespace:XamTuner" 
-	xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms" 
-	x:Class="XamTuner.XamTunerPage">
-	<StackLayout x:Name="MainLayout">
-		<Label Text="XamTuner" VerticalOptions="Center" HorizontalOptions="Center" />
-		<Button Text="Start" IsVisible="{Binding IsNotStarted}" Command="{Binding StartCmd}" />
-		<Button Text="Stop" IsVisible="{Binding IsStarted}" Command="{Binding StopCmd}" />
-		<Picker Title="Sample rate" ItemsSource="{Binding SupportedSampleRates}" SelectedItem="{Binding SampleRate}" />
-		<StackLayout BackgroundColor="Navy" Padding="20">
-			<Label Text="{Binding DetectedPitch}" TextColor="Yellow" HorizontalOptions="Center" />
-		</StackLayout>
-		<oxy:PlotView x:Name="Plot"            
-			HorizontalOptions="FillAndExpand" 
-			VerticalOptions="FillAndExpand"
-            Margin="5"
-			Model="{Binding PlotModel}"/>
-	</StackLayout>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:XamTuner" xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms" x:Class="XamTuner.XamTunerPage">
+    <ContentPage.Padding>
+        <OnPlatform x:TypeArguments="Thickness">
+            <OnPlatform.iOS>0,20,0,0</OnPlatform.iOS>
+        </OnPlatform>
+    </ContentPage.Padding>
+    <StackLayout x:Name="MainLayout">
+        <Label Text="XamTuner" VerticalOptions="Center" HorizontalOptions="Center" />
+        <Button Text="Start" IsVisible="{Binding IsNotStarted}" Command="{Binding StartCmd}" />
+        <Button Text="Stop" IsVisible="{Binding IsStarted}" Command="{Binding StopCmd}" />
+        <Picker Title="Sample rate" ItemsSource="{Binding SupportedSampleRates}" SelectedItem="{Binding SampleRate}" />
+        <Label x:Name="Info" TextColor="Green" VerticalOptions="Center"/>
+        <StackLayout BackgroundColor="Navy" Padding="5">
+            <!--Label Text="{Binding DetectedPitch}" TextColor="Yellow" HorizontalOptions="Center" /-->
+        </StackLayout>
+        <oxy:PlotView x:Name="Plot" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="5" Model="{Binding PlotModel}" />
+    </StackLayout>
 </ContentPage>

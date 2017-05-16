@@ -35,21 +35,51 @@ namespace XamTuner {
 			return buf;
 		}
 
-		public static void ComputeHPS(double[] ps, int harmonicCount) {
-			for(int i = 2; i <= harmonicCount; i++) {
+        public static void ComputeHPS(double[] ps, int harmonicsCount, double factor = 1d) {
+			for(int i = 2; i <= harmonicsCount; i++) {
 				for(int j = 0; j < ps.Length; j++) {
-                    ps[j] += ps.GetDownsampledValueAtIndex(j, i);
+                    ps[j] += ps.GetDownsampledValueAtIndex(j, i) * factor;
 				}
 			}
 		}
 
-		public static double[] ComputeHPS(Complex32[] fft, int harmonicCount, double[] buf = null) {
+        public static double[] ComputeHPS(Complex32[] fft, int harmonicsCount, double factor = 1d, double[] buf = null) {
 			buf = GetPowerSpectrum(fft, buf);
-			ComputeHPS(buf, harmonicCount);
+            ComputeHPS(buf, harmonicsCount, factor);
 			return buf;
 		}
 
-        public static int[] FindPeaks(double[] values, int peaksCount) {
+
+        /// <summary>
+        /// Finds the first peakCount peaks indices.
+        /// </summary>
+        /// <returns>The peaks.</returns>
+        /// <param name="values">Values.</param>
+        /// <param name="peaksCount">Peaks count.</param>
+        public static int[] FindPeaks(double[] values, int peaksCount, int startIndex, int endIndex) {
+            //double[] peakValues = new double[peaksCount];
+            int[] peakIndices = new int[peaksCount];
+            for (int i = 0; i < peaksCount; i++) {
+                peakIndices[i] = startIndex;
+                //peakValues[i] = values[0];
+            }
+            for (int i = startIndex + 1; i < endIndex; i++) {
+                if (values[i] > values[peakIndices[0]]) {
+                    for (int j = peaksCount - 1; j > 0; j--) {
+                        //peakValues[j] = peakValues[j - 1];
+                        peakIndices[j] = peakIndices[j - 1];
+                    }
+                    //peakValues[0] = values[i];
+                    peakIndices[0] = i;
+
+                    System.Diagnostics.Debug.WriteLine($"peaks: [{i}] {peakIndices[0]}, {peakIndices[1]}, {peakIndices[2]}");
+                }
+            }
+            return peakIndices;
+        }
+
+
+        public static int[] FindPeaks_(double[] values, int peaksCount) {
             double[] peakValues = new double[peaksCount];
             int[] peakIndices = new int[peaksCount];
 

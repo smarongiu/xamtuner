@@ -16,10 +16,12 @@ namespace XamTuner {
 
 	public class RealTimePitchDetectionService {
 
-        public const int HPS_FACTOR = 5;
+        public const int HPS_HARMONICS_COUNT = 4;
 
 		public event Action<DetectedPitchInfo> PitchDetected = delegate {};
-		public event Action<double[]> FragmentReceived = delegate {};
+		public event Action<double[]> PowerSpectrumAvailable = delegate {};
+        public event Action<double[]> HPSAvailable = delegate {};
+        public event Action<double[]> PeaksFound = delegate {};
 
         public double DetectionThreshold { get; set; } = -60;
 
@@ -29,10 +31,12 @@ namespace XamTuner {
 		Complex32[] _fftBuf;
 		double[] _powerSpecrumBuf;
 
+        int SampleBufferSize { get; set; }
+
 		void InitBuffers() {
 			_fftBuf = new Complex32[AudioInputService.SampleBufferSize];
-			int n = (int)Math.Ceiling((_fftBuf.Length + 1) / 2.0);
-			_powerSpecrumBuf = new double[n];
+			SampleBufferSize = (int)Math.Ceiling((_fftBuf.Length + 1) / 2.0);
+			_powerSpecrumBuf = new double[SampleBufferSize];
 		}
 
 		public bool IsStarted { get; private set; }
@@ -55,6 +59,19 @@ namespace XamTuner {
 			}
 		}
 
+        public double[] IndicesToFrequencies(int[] indices) {
+            double[] fqs = new double[indices.Length];
+            for (int i = 0; i < indices.Length; i++) {
+                fqs[i] = (double)i / _powerSpecrumBuf.Length * SampleRate / 2;
+            }
+            return fqs;
+        }
+
+
+        int FrequencyToIndex(double freq) {
+            return (int)(freq * SampleBufferSize / SampleRate * 2);
+        }
+
 
 		void OnNewFragment(object sender, EventArgs<byte[]> e) {
 			var samples = e.Value;
@@ -66,51 +83,14 @@ namespace XamTuner {
 			MathNet.Numerics.IntegralTransforms.Fourier.Forward(_fftBuf);
 
             AudioUtils.GetPowerSpectrum(_fftBuf, _powerSpecrumBuf);
+            PowerSpectrumAvailable(_powerSpecrumBuf);
 
-			//get the power spectrum and the HSP
-			//AudioUtils.ComputeHPS(_powerSpecrumBuf, HPS_FACTOR);
+            //get the power spectrum and the HSP
+            AudioUtils.ComputeHPS(_powerSpecrumBuf, HPS_HARMONICS_COUNT);
+            HPSAvailable(_powerSpecrumBuf);
 
-            _powerSpecrumBuf.ConvertToDb();
-            FragmentReceived(_powerSpecrumBuf);
-
-            double mean = _powerSpecrumBuf.Mean();
-            double std = _powerSpecrumBuf.StandardDeviation();
-            double threshold = -50;
-
-			//find max
-			int index = -1;
-            double max = DetectionThreshold;
-			for(int i = 0; i < _powerSpecrumBuf.Length; i++) {
-				if(_powerSpecrumBuf[i] > max) {
-					max = _powerSpecrumBuf[i];
-					index = i;
-				}
-			}
-            System.Diagnostics.Debug.WriteLine($"mean={mean} max={max} @[{index}] std={std}");
-
-			if(index != -1) {
-				var fq = (double)index / _powerSpecrumBuf.Length * SampleRate;
-				//System.Diagnostics.Debug.WriteLine($"max: fq={fq} -> {max}");
-				PitchDetected(new DetectedPitchInfo(fq, max));
-            } else {
-                PitchDetected(null);
-            }
-
-			//double max = hsp.Maximum();
-			//double mean = hsp.Mean();
-			//double std = hsp.StandardDeviation();
-
-			//double threshold = mean;
-			//for(int i = 0; i < hsp.Length; i++) {
-			//	if(hsp[i] > threshold) {
-			//		var fq = (double)i / _fftBuf.Length * SampleRate;
-			//		//System.Diagnostics.Debug.WriteLine($"{fq} : [{i}] -> {psd[i]}");
-			//		if(hsp[i] > max * 0.95) {
-			//			DetectedPitch = fq.ToString("F1");
-			//			RaisePropertyChanged(nameof(DetectedPitch));
-			//		}
-			//	}
-			//}
+            var peaks = AudioUtils.FindPeaks(_powerSpecrumBuf, 3, FrequencyToIndex(40.0), FrequencyToIndex(6000.0));
+            PeaksFound(IndicesToFrequencies(peaks));
 		}
 
 	}
