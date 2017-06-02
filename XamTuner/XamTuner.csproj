@@ -42,12 +42,12 @@
     <Compile Include="Sources\AppContext.cs" />
     <Compile Include="XamTunerViewModel.cs" />
     <Compile Include="Sources\Services\RealTimePitchDetectionService.cs" />
-    <Compile Include="Sources\Processing\Utils\AudioUtils.cs" />
-    <Compile Include="Sources\Processing\Extensions\AudioAnalysisExtensions.cs" />
     <Compile Include="Sources\Processing\Tarsos\YinPitchDetector.cs" />
     <Compile Include="Sources\Processing\Tarsos\IPitchDetector.cs" />
     <Compile Include="Sources\Processing\Tarsos\PitchDetectionResult.cs" />
     <Compile Include="Sources\Processing\DetectedPitchInfo.cs" />
+    <Compile Include="Sources\Processing\Note.cs" />
+    <Compile Include="Sources\Processing\TemperedScale.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ExifLib">
@@ -101,23 +101,14 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="OxyPlot">
-      <HintPath>..\packages\OxyPlot.Core.1.0.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1+Xamarin.iOS10\OxyPlot.dll</HintPath>
-    </Reference>
-    <Reference Include="OxyPlot.Xamarin.Forms">
-      <HintPath>..\packages\OxyPlot.Xamarin.Forms.1.0.0\lib\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10\OxyPlot.Xamarin.Forms.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Sources\Services\RealTimePitchDetectionService_old.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Sources\" />
     <Folder Include="Sources\Services\" />
     <Folder Include="Sources\Processing\" />
-    <Folder Include="Sources\Processing\Utils\" />
-    <Folder Include="Sources\Processing\Extensions\" />
     <Folder Include="Sources\Processing\Tarsos\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

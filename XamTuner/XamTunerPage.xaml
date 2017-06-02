@@ -17,10 +17,5 @@
             <Label x:Name="DetectedNoteLabel" Text="" HorizontalOptions="Center" />
 			<Label x:Name="OvertoneLabel" Text="+" TextColor="Red" HorizontalOptions="Center"/>
         </StackLayout>
-        <StackLayout Padding="2" Spacing="10" Orientation="Horizontal">
-            <Label Text="View HPS" HorizontalOptions="Start"/>
-			<Switch IsToggled="{Binding IsViewHPSToggled}"/>
-        </StackLayout>
-        <oxy:PlotView x:Name="Plot" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="5" Model="{Binding PlotModel}" />
     </StackLayout>
 </ContentPage>

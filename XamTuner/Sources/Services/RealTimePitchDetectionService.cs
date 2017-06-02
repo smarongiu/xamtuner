@@ -10,9 +10,6 @@ namespace XamTuner.Services {
 	public class RealTimePitchDetectionService {
 
 		public event Action<DetectedPitchInfo> PitchDetected = delegate { };
-		public event Action<double[]> PowerSpectrumAvailable = delegate { };
-		public event Action<double[]> HPSAvailable = delegate { };
-		public event Action<double[]> PeaksFound = delegate { };
 
 		public bool IsStarted { get; private set; }
 		public int SampleRate { get; private set; } = AudioInputService.DefaultSampleRate;
@@ -46,18 +43,6 @@ namespace XamTuner.Services {
 			}
 		}
 
-		public double[] IndicesToFrequencies(int[] indices) {
-			double[] fqs = new double[indices.Length];
-			for(int i = 0; i < indices.Length; i++) {
-				fqs[i] = IndexToFrequency(i);
-			}
-			return fqs;
-		}
-
-		double IndexToFrequency(int index) => (double)index / _sampleBufferSize * SampleRate / 2;
-
-		int FrequencyToIndex(double freq) => (int)(freq * _sampleBufferSize / SampleRate * 2);
-
 
 		void OnNewFragment(object sender, EventArgs<byte[]> e) {
 			var samples = e.Value;
@@ -65,12 +50,14 @@ namespace XamTuner.Services {
 
             var result = _yin.GetPitch(_buffer);
 
-            System.Diagnostics.Debug.WriteLine(result);
+            if (result.IsPitched && result.Probability > 0.9) {
+                double err;
+                var note = Note.FromFrequency(result.Pitch, out err);
+            }
 		}
 
 
-
-        public static void Convert16BitsSamplesToFloat(byte[] samples, float[] buf) {
+        static void Convert16BitsSamplesToFloat(byte[] samples, float[] buf) {
             for (int i = 0; i < samples.Length; i += 2) {
                 var v = (short)(samples[i + 1] << 8 | samples[i]);
                 buf[i / 2] = (float)((double)v / 32768);
