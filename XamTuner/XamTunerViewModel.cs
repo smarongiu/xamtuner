@@ -19,8 +19,8 @@ namespace XamTuner {
 
 		void OnPitchDetected(DetectedPitchInfo pi) {
 			if(pi != null) {
-				DetectedPitch = pi.Frequency.ToString("F2");
-				RaisePropertyChanged(nameof(DetectedPitch));
+                DetectedPitch = pi;
+                RaisePropertyChanged(nameof(DetectedPitch));
 			}
 		}
 
@@ -30,10 +30,7 @@ namespace XamTuner {
 
 		public bool IsNotStarted => !IsStarted;
 
-		public string DetectedPitch { get; private set; }
-
-		public string Description { get; private set; }
-
+		public DetectedPitchInfo DetectedPitch { get; private set; }
 
 		public IEnumerable<int> SupportedSampleRates {
 			get {

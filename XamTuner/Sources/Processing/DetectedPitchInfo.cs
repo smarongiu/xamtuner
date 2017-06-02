@@ -1,13 +1,17 @@
 ﻿using System;
+using XamTuner.Sources.Processing.Tarsos;
+
 namespace XamTuner.Sources.Processing {
     
     public class DetectedPitchInfo {
-        public readonly double Frequency;
-        public readonly double Power;
+        public readonly Note Note;
+        public readonly double NoteError;
+        public readonly PitchDetectionResult PitchResult;
 
-        public DetectedPitchInfo(double fq, double pw) {
-            Frequency = fq;
-            Power = pw;
+        public DetectedPitchInfo(Note note, double noteError, PitchDetectionResult pitch) {
+            Note = note;
+            NoteError = noteError;
+            PitchResult = pitch;
         }
     }
 

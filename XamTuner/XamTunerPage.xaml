@@ -12,10 +12,10 @@
         <Picker Title="Sample rate" IsVisible="false" ItemsSource="{Binding SupportedSampleRates}" SelectedItem="{Binding SampleRate}" />
         <Label x:Name="Info" TextColor="Green" VerticalOptions="Center"/>
         <StackLayout BackgroundColor="Navy" Spacing="10" Padding="2" HeightRequest="15" Orientation="Horizontal">
-			<Label Text="{Binding DetectedPitch}" TextColor="Silver" HorizontalOptions="Start" />
-			<Label x:Name="UndertoneLabel" Text="-" TextColor="Red" HorizontalOptions="Center"/>
-            <Label x:Name="DetectedNoteLabel" Text="" HorizontalOptions="Center" />
-			<Label x:Name="OvertoneLabel" Text="+" TextColor="Red" HorizontalOptions="Center"/>
+			<Label x:Name="PitchLabel" Text="" TextColor="Silver" HorizontalOptions="Start" />
+			<Label x:Name="UndertoneLabel" Text="-" TextColor="Red" HorizontalOptions="Fill"/>
+            <Label x:Name="DetectedNoteLabel" Text="" TextColor="Yellow" HorizontalOptions="CenterAndExpand" FontSize="20"/>
+			<Label x:Name="OvertoneLabel" Text="+" TextColor="Red" HorizontalOptions="Fill"/>
         </StackLayout>
     </StackLayout>
 </ContentPage>

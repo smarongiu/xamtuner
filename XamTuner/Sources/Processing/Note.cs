@@ -12,7 +12,7 @@ namespace XamTuner.Sources.Processing {
 
         public static Note FromFrequency(float frequency, out double error) {
             int octave;
-            var note = new Note(TemperedScale.FrequencyToKey((float)frequency, out octave, out error), octave);
+            var note = new Note(TemperedScale.FrequencyToKey((double)frequency, out octave, out error), octave);
             return note;
         }
 

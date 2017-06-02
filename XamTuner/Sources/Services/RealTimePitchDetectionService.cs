@@ -17,6 +17,7 @@ namespace XamTuner.Services {
         float[] _buffer;
 		int _sampleBufferSize;
         YinPitchDetector _yin;
+        bool _busy;
 
 		public RealTimePitchDetectionService() {
             _yin = new YinPitchDetector(AudioInputService.DefaultSampleRate, AudioInputService.SampleBufferSize);
@@ -45,15 +46,20 @@ namespace XamTuner.Services {
 
 
 		void OnNewFragment(object sender, EventArgs<byte[]> e) {
+            if (_busy) return;
+            _busy = true;
+
 			var samples = e.Value;
             Convert16BitsSamplesToFloat(samples, _buffer);
 
             var result = _yin.GetPitch(_buffer);
 
-            if (result.IsPitched && result.Probability > 0.9) {
+            if (result != null && result.IsPitched && result.Probability > 0.9) {
                 double err;
                 var note = Note.FromFrequency(result.Pitch, out err);
+                PitchDetected(new DetectedPitchInfo(note, err, result));
             }
+            _busy = false;
 		}
 
 
