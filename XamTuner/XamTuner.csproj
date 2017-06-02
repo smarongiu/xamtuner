@@ -44,6 +44,10 @@
     <Compile Include="Sources\Services\RealTimePitchDetectionService.cs" />
     <Compile Include="Sources\Processing\Utils\AudioUtils.cs" />
     <Compile Include="Sources\Processing\Extensions\AudioAnalysisExtensions.cs" />
+    <Compile Include="Sources\Processing\Tarsos\YinPitchDetector.cs" />
+    <Compile Include="Sources\Processing\Tarsos\IPitchDetector.cs" />
+    <Compile Include="Sources\Processing\Tarsos\PitchDetectionResult.cs" />
+    <Compile Include="Sources\Processing\DetectedPitchInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ExifLib">
@@ -106,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Sources\Services\RealTimePitchDetectionService_old.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Sources\" />
@@ -113,6 +118,7 @@
     <Folder Include="Sources\Processing\" />
     <Folder Include="Sources\Processing\Utils\" />
     <Folder Include="Sources\Processing\Extensions\" />
+    <Folder Include="Sources\Processing\Tarsos\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />

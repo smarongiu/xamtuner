@@ -10,8 +10,8 @@ namespace XamTuner {
 
 	public static class AudioInputService {
 
-        public const int SampleBufferMs = 333;
-		public const int DefaultSampleRate = 22050;
+        public const int SampleBufferMs = 200;
+		public const int DefaultSampleRate = 44100;
 
 		public const int SampleBufferSize = DefaultSampleRate * SampleBufferMs / 1000;
 

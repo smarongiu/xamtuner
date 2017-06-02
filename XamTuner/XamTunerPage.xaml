@@ -9,10 +9,17 @@
         <Label Text="XamTuner" VerticalOptions="Center" HorizontalOptions="Center" />
         <Button Text="Start" IsVisible="{Binding IsNotStarted}" Command="{Binding StartCmd}" />
         <Button Text="Stop" IsVisible="{Binding IsStarted}" Command="{Binding StopCmd}" />
-        <Picker Title="Sample rate" ItemsSource="{Binding SupportedSampleRates}" SelectedItem="{Binding SampleRate}" />
+        <Picker Title="Sample rate" IsVisible="false" ItemsSource="{Binding SupportedSampleRates}" SelectedItem="{Binding SampleRate}" />
         <Label x:Name="Info" TextColor="Green" VerticalOptions="Center"/>
-        <StackLayout BackgroundColor="Navy" Padding="5">
-            <!--Label Text="{Binding DetectedPitch}" TextColor="Yellow" HorizontalOptions="Center" /-->
+        <StackLayout BackgroundColor="Navy" Spacing="10" Padding="2" HeightRequest="15" Orientation="Horizontal">
+			<Label Text="{Binding DetectedPitch}" TextColor="Silver" HorizontalOptions="Start" />
+			<Label x:Name="UndertoneLabel" Text="-" TextColor="Red" HorizontalOptions="Center"/>
+            <Label x:Name="DetectedNoteLabel" Text="" HorizontalOptions="Center" />
+			<Label x:Name="OvertoneLabel" Text="+" TextColor="Red" HorizontalOptions="Center"/>
+        </StackLayout>
+        <StackLayout Padding="2" Spacing="10" Orientation="Horizontal">
+            <Label Text="View HPS" HorizontalOptions="Start"/>
+			<Switch IsToggled="{Binding IsViewHPSToggled}"/>
         </StackLayout>
         <oxy:PlotView x:Name="Plot" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="5" Model="{Binding PlotModel}" />
     </StackLayout>

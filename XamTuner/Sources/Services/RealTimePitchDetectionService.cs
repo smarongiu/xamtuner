@@ -1,47 +1,34 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MathNet.Numerics;
-using MathNet.Numerics.Statistics;
+using XamTuner.Sources.Processing;
+using XamTuner.Sources.Processing.Tarsos;
 using XLabs;
 
-namespace XamTuner {
-	public class DetectedPitchInfo {
-		public readonly double Frequency;
-		public readonly double Power;
-		public DetectedPitchInfo(double fq, double pw) {
-			Frequency = fq;
-			Power = pw;
-		}
-	}
+namespace XamTuner.Services {
 
 	public class RealTimePitchDetectionService {
 
-        public const int HPS_HARMONICS_COUNT = 4;
-
-		public event Action<DetectedPitchInfo> PitchDetected = delegate {};
-		public event Action<double[]> PowerSpectrumAvailable = delegate {};
-        public event Action<double[]> HPSAvailable = delegate {};
-        public event Action<double[]> PeaksFound = delegate {};
-
-        public double DetectionThreshold { get; set; } = -60;
-
-		public RealTimePitchDetectionService() {
-		}
-
-		Complex32[] _fftBuf;
-		double[] _powerSpecrumBuf;
-
-        int SampleBufferSize { get; set; }
-
-		void InitBuffers() {
-			_fftBuf = new Complex32[AudioInputService.SampleBufferSize];
-			SampleBufferSize = (int)Math.Ceiling((_fftBuf.Length + 1) / 2.0);
-			_powerSpecrumBuf = new double[SampleBufferSize];
-		}
+		public event Action<DetectedPitchInfo> PitchDetected = delegate { };
+		public event Action<double[]> PowerSpectrumAvailable = delegate { };
+		public event Action<double[]> HPSAvailable = delegate { };
+		public event Action<double[]> PeaksFound = delegate { };
 
 		public bool IsStarted { get; private set; }
-
 		public int SampleRate { get; private set; } = AudioInputService.DefaultSampleRate;
+
+        float[] _buffer;
+		int _sampleBufferSize;
+        YinPitchDetector _yin;
+
+		public RealTimePitchDetectionService() {
+            _yin = new YinPitchDetector(AudioInputService.DefaultSampleRate, AudioInputService.SampleBufferSize);
+		}
+
+		void InitBuffers() {
+			_buffer = new float[AudioInputService.SampleBufferSize];
+			_sampleBufferSize = (int)Math.Ceiling((_buffer.Length + 1) / 2.0);
+		}
 
 		public async Task Start() {
 			if(!IsStarted) {
@@ -59,39 +46,39 @@ namespace XamTuner {
 			}
 		}
 
-        public double[] IndicesToFrequencies(int[] indices) {
-            double[] fqs = new double[indices.Length];
-            for (int i = 0; i < indices.Length; i++) {
-                fqs[i] = (double)i / _powerSpecrumBuf.Length * SampleRate / 2;
-            }
-            return fqs;
-        }
+		public double[] IndicesToFrequencies(int[] indices) {
+			double[] fqs = new double[indices.Length];
+			for(int i = 0; i < indices.Length; i++) {
+				fqs[i] = IndexToFrequency(i);
+			}
+			return fqs;
+		}
 
+		double IndexToFrequency(int index) => (double)index / _sampleBufferSize * SampleRate / 2;
 
-        int FrequencyToIndex(double freq) {
-            return (int)(freq * SampleBufferSize / SampleRate * 2);
-        }
+		int FrequencyToIndex(double freq) => (int)(freq * _sampleBufferSize / SampleRate * 2);
 
 
 		void OnNewFragment(object sender, EventArgs<byte[]> e) {
 			var samples = e.Value;
+            Convert16BitsSamplesToFloat(samples, _buffer);
 
-			//convert samples to complex and apply a Hann function window
-			AudioUtils.Convert16BitsSamplesWindowed(samples, MathNet.Numerics.Window.Hann(_fftBuf.Length), _fftBuf);
+            var result = _yin.GetPitch(_buffer);
 
-			//calculate the fft
-			MathNet.Numerics.IntegralTransforms.Fourier.Forward(_fftBuf);
-
-            AudioUtils.GetPowerSpectrum(_fftBuf, _powerSpecrumBuf);
-            PowerSpectrumAvailable(_powerSpecrumBuf);
-
-            //get the power spectrum and the HSP
-            AudioUtils.ComputeHPS(_powerSpecrumBuf, HPS_HARMONICS_COUNT);
-            HPSAvailable(_powerSpecrumBuf);
-
-            var peaks = AudioUtils.FindPeaks(_powerSpecrumBuf, 3, FrequencyToIndex(40.0), FrequencyToIndex(6000.0));
-            PeaksFound(IndicesToFrequencies(peaks));
+            System.Diagnostics.Debug.WriteLine(result);
 		}
 
-	}
+
+
+        public static void Convert16BitsSamplesToFloat(byte[] samples, float[] buf) {
+            for (int i = 0; i < samples.Length; i += 2) {
+                var v = (short)(samples[i + 1] << 8 | samples[i]);
+                buf[i / 2] = (float)((double)v / 32768);
+            }
+            for (int i = samples.Length; i < buf.Length; i += 2) {
+                buf[i / 2] = 0;
+            }
+        }
+
+    }
 }
