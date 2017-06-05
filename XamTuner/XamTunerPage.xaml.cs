@@ -10,6 +10,7 @@ namespace XamTuner {
 			InitializeComponent();
 
             Vm.PropertyChanged += Vm_PropertyChanged;
+            Vm.StartCmd.Execute(null);
 		}
 
         XamTunerViewModel Vm { get; set; }
@@ -17,11 +18,32 @@ namespace XamTuner {
         void Vm_PropertyChanged(object sender, PropertyChangedEventArgs e) {
             if (e.PropertyName == nameof(Vm.DetectedPitch)) {
                 Device.BeginInvokeOnMainThread(() => {
-                    DetectedNoteLabel.Text = $"{Vm.DetectedPitch.Note} ({Vm.DetectedPitch.NoteError})";
-                    DetectedNoteLabel.TextColor = (Math.Abs(Vm.DetectedPitch.NoteError) < 0.1) ? Color.Green : Color.Yellow;
-                    PitchLabel.Text = $"{Vm.DetectedPitch.PitchResult.Pitch} Hz";
+                    var err = Vm.DetectedPitch.NoteError;
+                    DetectedNoteLabel.Text = Vm.DetectedPitch.Note.ToString();
+                    if (Math.Abs(err) < 0.1) {
+                        DetectedNoteLabel.TextColor = Color.Green;
+                        DetectedNoteLabel.FontSize = 70;
+                        LeftLabel.Text = "";
+                        RightLabel.Text = "";
+                    } else {
+                        DetectedNoteLabel.FontSize = 60;
+                        DetectedNoteLabel.TextColor = Color.Silver;
+                        if (err < 0) {
+                            LeftLabel.Text = MakeDotLabel(err);
+                            RightLabel.Text = "";
+                        } else {
+                            LeftLabel.Text = "";
+                            RightLabel.Text = MakeDotLabel(err);
+                        }
+                    }
+                    PitchLabel.Text = $"{Vm.DetectedPitch.PitchResult.Pitch:F2} Hz";
                 });
             }
+        }
+
+        string MakeDotLabel(double error) {
+            var count = (int)Math.Round(Math.Abs(error) * 100 / 12.5, 0);
+            return new string('•', count);
         }
 
     }

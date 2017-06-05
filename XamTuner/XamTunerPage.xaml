@@ -7,15 +7,16 @@
     </ContentPage.Padding>
     <StackLayout x:Name="MainLayout">
         <Label Text="XamTuner" VerticalOptions="Center" HorizontalOptions="Center" />
-        <Button Text="Start" IsVisible="{Binding IsNotStarted}" Command="{Binding StartCmd}" />
-        <Button Text="Stop" IsVisible="{Binding IsStarted}" Command="{Binding StopCmd}" />
-        <Picker Title="Sample rate" IsVisible="false" ItemsSource="{Binding SupportedSampleRates}" SelectedItem="{Binding SampleRate}" />
-        <Label x:Name="Info" TextColor="Green" VerticalOptions="Center"/>
-        <StackLayout BackgroundColor="Navy" Spacing="10" Padding="2" HeightRequest="15" Orientation="Horizontal">
-			<Label x:Name="PitchLabel" Text="" TextColor="Silver" HorizontalOptions="Start" />
-			<Label x:Name="UndertoneLabel" Text="-" TextColor="Red" HorizontalOptions="Fill"/>
-            <Label x:Name="DetectedNoteLabel" Text="" TextColor="Yellow" HorizontalOptions="CenterAndExpand" FontSize="20"/>
-			<Label x:Name="OvertoneLabel" Text="+" TextColor="Red" HorizontalOptions="Fill"/>
+        <Label x:Name="Info" TextColor="Green" VerticalOptions="Center" />
+        <StackLayout Spacing="30" Padding="30">
+            <StackLayout Spacing="20" Padding="10" Orientation="Horizontal" VerticalOptions="FillAndExpand">
+                <Label x:Name="LeftLabel" Text="" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" VerticalOptions="Center" FontSize="24" TextColor="#cc0000"/>
+                <Label x:Name="DetectedNoteLabel" Text="" HorizontalOptions="CenterAndExpand" VerticalOptions="Center" FontSize="60"/>
+                <Label x:Name="RightLabel" Text="" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start" VerticalOptions="Center" FontSize="24" TextColor="#cc0000"/>
+            </StackLayout>
+            <Label x:Name="PitchLabel" Text="" TextColor="Silver" HorizontalOptions="Center" />
         </StackLayout>
+        <Button Text="Start" IsVisible="{Binding IsNotStarted}" Command="{Binding StartCmd}" BorderColor="Blue"/>
+        <Button Text="Stop" IsVisible="{Binding IsStarted}" Command="{Binding StopCmd}" BorderColor="Blue"/>
     </StackLayout>
 </ContentPage>
