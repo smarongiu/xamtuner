@@ -1,46 +1,46 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MathNet.Numerics;
 using XamTuner.Sources.Processing;
 using XamTuner.Sources.Processing.Tarsos;
 using XLabs;
 
-namespace XamTuner.Services {
+namespace XamTuner.Sources.Services {
 
-	public class RealTimePitchDetectionService {
+	public class RealTimePitchDetectionService : IPitchDetectionService {
 
 		public event Action<DetectedPitchInfo> PitchDetected = delegate { };
 
 		public bool IsStarted { get; private set; }
-		public int SampleRate { get; private set; } = AudioInputService.DefaultSampleRate;
 
+        readonly IAudioCaptureService _audioCapture;
         float[] _buffer;
 		int _sampleBufferSize;
         YinPitchDetector _yin;
         bool _busy;
 
-		public RealTimePitchDetectionService() {
-            _yin = new YinPitchDetector(AudioInputService.DefaultSampleRate, AudioInputService.SampleBufferSize);
+        public RealTimePitchDetectionService(IAudioCaptureService audioCapture) {
+            _audioCapture = audioCapture;
+            _yin = new YinPitchDetector(_audioCapture.SampleRate, _audioCapture.SampleBufferSize);
 		}
 
 		void InitBuffers() {
-			_buffer = new float[AudioInputService.SampleBufferSize];
+			_buffer = new float[_audioCapture.SampleBufferSize];
 			_sampleBufferSize = (int)Math.Ceiling((_buffer.Length + 1) / 2.0);
 		}
 
 		public async Task Start() {
 			if(!IsStarted) {
 				InitBuffers();
-				AudioInputService.AudioStream.OnBroadcast += OnNewFragment;
-				IsStarted = await AudioInputService.AudioStream.Start(SampleRate);
+                _audioCapture.AudioStream.OnBroadcast += OnNewFragment;
+				IsStarted = await _audioCapture.AudioStream.Start(_audioCapture.SampleRate);
 			}
 		}
 
 		public async Task Stop() {
 			if(IsStarted) {
-				await AudioInputService.AudioStream.Stop();
+				await _audioCapture.AudioStream.Stop();
 				IsStarted = false;
-				AudioInputService.AudioStream.OnBroadcast -= OnNewFragment;
+				_audioCapture.AudioStream.OnBroadcast -= OnNewFragment;
 			}
 		}
 

@@ -1,20 +1,19 @@
 using System;
-using System.Collections.Generic;
 using GalaSoft.MvvmLight;
 using Plugin.Permissions;
 using Plugin.Permissions.Abstractions;
-using XamTuner.Services;
 using XamTuner.Sources.Processing;
+using XamTuner.Sources.Services;
 using XLabs;
 
 namespace XamTuner {
 	public class XamTunerViewModel : ViewModelBase {
 
-		RealTimePitchDetectionService _service;
+        IPitchDetectionService _pitchDetectionService;
 
-		public XamTunerViewModel() {
-			_service = new RealTimePitchDetectionService();
-			_service.PitchDetected += OnPitchDetected;
+        public XamTunerViewModel(IPitchDetectionService pitchDetectionService) : base() {
+            _pitchDetectionService = pitchDetectionService;
+			_pitchDetectionService.PitchDetected += OnPitchDetected;
 		}
 
 		void OnPitchDetected(DetectedPitchInfo pi) {
@@ -24,19 +23,12 @@ namespace XamTuner {
 			}
 		}
 
-		public int SampleRate => _service.SampleRate;
-
-		public bool IsStarted => _service.IsStarted;
+		public bool IsStarted => _pitchDetectionService.IsStarted;
 
 		public bool IsNotStarted => !IsStarted;
 
 		public DetectedPitchInfo DetectedPitch { get; private set; }
 
-		public IEnumerable<int> SupportedSampleRates {
-			get {
-				return AudioInputService.AudioStream.SupportedSampleRates;
-			}
-		}
 
 		public RelayCommand StartCmd {
 			get {
@@ -53,7 +45,7 @@ namespace XamTuner {
 
 						if(status == PermissionStatus.Granted) {
 
-							await _service.Start();
+							await _pitchDetectionService.Start();
 							RaisePropertyChanged(nameof(IsStarted));
 							RaisePropertyChanged(nameof(IsNotStarted));
 
@@ -70,7 +62,7 @@ namespace XamTuner {
 		public RelayCommand StopCmd {
 			get {
 				return new RelayCommand(async () => {
-					await _service.Stop();
+					await _pitchDetectionService.Stop();
 					RaisePropertyChanged(nameof(IsStarted));
 					RaisePropertyChanged(nameof(IsNotStarted));
 				});

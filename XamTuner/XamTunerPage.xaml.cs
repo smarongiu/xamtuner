@@ -4,14 +4,24 @@ using Xamarin.Forms;
 
 namespace XamTuner {
 	public partial class XamTunerPage : ContentPage {
-		public XamTunerPage() {
-			Vm = new XamTunerViewModel();
+		
+        public XamTunerPage(XamTunerViewModel vm) {
+            Vm = vm;
 			BindingContext = Vm;
 			InitializeComponent();
 
-            Vm.PropertyChanged += Vm_PropertyChanged;
             Vm.StartCmd.Execute(null);
-		}
+        }
+
+        protected override void OnAppearing() {
+            base.OnAppearing();
+            Vm.PropertyChanged += Vm_PropertyChanged;
+        }
+
+        protected override void OnDisappearing() {
+            Vm.PropertyChanged -= Vm_PropertyChanged;
+            base.OnDisappearing();
+        }
 
         XamTunerViewModel Vm { get; set; }
 
