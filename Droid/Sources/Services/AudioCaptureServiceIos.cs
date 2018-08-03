@@ -1,13 +1,12 @@
-﻿using System;
-using XamTuner.iOS.Sources.Services;
+﻿using XamTuner.Droid.Sources.Services;
 using XamTuner.Sources.Services;
 
-[assembly: Xamarin.Forms.Dependency(typeof(AudioCaptureServiceIos))]
+[assembly: Xamarin.Forms.Dependency(typeof(AudioCaptureServiceAndroid))]
 
-namespace XamTuner.iOS.Sources.Services {
-    public class AudioCaptureServiceIos : IAudioCaptureService {
+namespace XamTuner.Droid.Sources.Services {
+    public class AudioCaptureServiceAndroid : IAudioCaptureService {
 
-        public AudioCaptureServiceIos() {
+        public AudioCaptureServiceAndroid() {
             SampleBufferSize = SampleRate * SampleBufferMs / 1000;
             AudioStream = new Microphone(SampleBufferSize);
         }

@@ -1,10 +1,11 @@
 using System;
+using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Plugin.Permissions;
 using Plugin.Permissions.Abstractions;
 using XamTuner.Sources.Processing;
 using XamTuner.Sources.Services;
-using XLabs;
 
 namespace XamTuner {
 	public class XamTunerViewModel : ViewModelBase {
@@ -37,7 +38,7 @@ namespace XamTuner {
 						var status = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Microphone);
 						if(status != PermissionStatus.Granted) {
 							if(await CrossPermissions.Current.ShouldShowRequestPermissionRationaleAsync(Permission.Microphone)) {
-								//await DisplayAlert("Need microphone", "please please", "OK");
+								//present a custom message to user here
 							}
 							var results = await CrossPermissions.Current.RequestPermissionsAsync(new[] { Permission.Microphone });
 							status = results[Permission.Microphone];
@@ -45,12 +46,13 @@ namespace XamTuner {
 
 						if(status == PermissionStatus.Granted) {
 
-							await _pitchDetectionService.Start();
+                            await Task.Run(_pitchDetectionService.Start);
+
 							RaisePropertyChanged(nameof(IsStarted));
 							RaisePropertyChanged(nameof(IsNotStarted));
 
 						} else if(status != PermissionStatus.Unknown) {
-							//await DisplayAlert("Location Denied", "Can not continue, try again.", "OK");
+                            //present a custom error message to user here
 						}
 					} catch(Exception ex) {
 						System.Diagnostics.Debug.WriteLine($"error: {ex}");

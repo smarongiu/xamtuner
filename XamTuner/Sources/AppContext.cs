@@ -12,7 +12,7 @@ namespace XamTuner {
 
             b.Register(c => DependencyService.Get<IAudioCaptureService>()).As<IAudioCaptureService>().SingleInstance();
             b.RegisterType<RealTimePitchDetectionService>().As<IPitchDetectionService>().SingleInstance();
-            b.RegisterType<XamTunerViewModel>().AsSelf().SingleInstance();
+            b.RegisterType<XamTunerViewModel>().AsSelf();
 
 			Container = b.Build();
 		}

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using XamTuner.Sources.Processing;
 using XamTuner.Sources.Processing.Tarsos;
-using XLabs;
 
 namespace XamTuner.Sources.Services {
 
@@ -31,25 +30,25 @@ namespace XamTuner.Sources.Services {
 		public async Task Start() {
 			if(!IsStarted) {
 				InitBuffers();
-                _audioCapture.AudioStream.OnBroadcast += OnNewFragment;
+                _audioCapture.AudioStream.DataBufferReached += HandleNewSamples;
 				IsStarted = await _audioCapture.AudioStream.Start(_audioCapture.SampleRate);
 			}
 		}
 
 		public async Task Stop() {
-			if(IsStarted) {
-				await _audioCapture.AudioStream.Stop();
+            await _audioCapture.AudioStream.Stop();
+            if(IsStarted) {
 				IsStarted = false;
-				_audioCapture.AudioStream.OnBroadcast -= OnNewFragment;
+				_audioCapture.AudioStream.DataBufferReached -= HandleNewSamples;
 			}
 		}
 
 
-		void OnNewFragment(object sender, EventArgs<byte[]> e) {
+        void HandleNewSamples(object sender, DataBufferEventArgs e) {
             if (_busy) return;
             _busy = true;
 
-			var samples = e.Value;
+            var samples = e.Data;
             Convert16BitsSamplesToFloat(samples, _buffer);
 
             var result = _yin.GetPitch(_buffer);
